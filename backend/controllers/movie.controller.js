@@ -31,7 +31,7 @@ movieCtrl.addMovie = async (req, res) => {
 
 movieCtrl.updateMovie = async (req, res) => {
     const movie = req.body;
-    await movie.findByIdAndUpdate (
+    await Movie.findByIdAndUpdate (
         req.params.id,
         {$set: movie},
         {new: true}).then ((data) => {
@@ -40,3 +40,24 @@ movieCtrl.updateMovie = async (req, res) => {
         }) 
         .catch((err) => res.status(400).json({status: err}));
 };
+
+// Función que elimina una pelicula:
+
+movieCtrl.deleteMovie = async (req, res) => {
+    await Movie.findByIdAndDelete (req.params.id).then ((data) => {
+            if(data)res.status(200).json({status: 'Movie Successfully Deleted'})
+                else res.status(404).json({status: 'Movie Not Found'})
+        }) 
+        .catch((err) => res.status(400).json({status: err}));
+};
+
+// Función que busca por género una pelicula:
+
+movieCtrl.getGenres = async (req, res) => {
+    await Movie.find().distinct('genres').then(() => {
+        res.status(200).json({status: data})
+    })
+    .catch((err) => res.status(400).json({status: err}));
+};
+
+module.exports = movieCtrl;
