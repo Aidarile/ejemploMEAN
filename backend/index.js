@@ -13,8 +13,9 @@ app.use(express.json());
 
 // Routes:
 
-app.use('/', (req, res) => res.send('API is in (api/v1/movies')); //establecemos nuestra API en api/v1/movies y aqui lo redireccionamos
 app.use('/api/v1/movies', require('./routes/movie.route'));
+app.use('/', (req, res) => res.send('API is in (api/v1/movies')); //establecemos nuestra API en api/v1/movies y aqui lo redireccionamos
+
 
 // Settings:
 
