@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiResponseMovies, Movie } from '../common/interface';
+import { ApiResponseMovie, ApiResponseMovies, Movie } from '../common/interface';
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +16,8 @@ export class MovieService {
     return this.http.get<ApiResponseMovies> (this.urlBase);
   }
 
-  getMovie(id: string): Observable<ApiResponseMovies> {
-    return this.http.get<ApiResponseMovies> (this.urlBase + 'movie/' + id);
+  getMovie(id: string): Observable<ApiResponseMovie> {
+    return this.http.get<ApiResponseMovie> (this.urlBase + '/movie/' + id);
   }
 
   //Nuevo en la segunda evaluacion: FUNCIONES DEL CRUD:
