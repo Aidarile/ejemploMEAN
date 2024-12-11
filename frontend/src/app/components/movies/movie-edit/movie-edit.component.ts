@@ -1,7 +1,8 @@
 import { MovieService } from './../../../services/movie.service';
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, FormControl, Validators } from '@angular/forms';
 import { Movie } from '../../../common/interface';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-movie-edit',
@@ -14,10 +15,15 @@ export class MovieEditComponent implements OnInit {
   @Input('id') id!: string;
   private readonly movieService: MovieService = inject(MovieService);
   private readonly formBuilder: FormBuilder = inject(FormBuilder);
-  formMovie: FormGroup = this.formBuilder.group({
+  private readonly router: Router = inject(Router);
+  protected formMovie: FormGroup = this.formBuilder.group({
     _id: [],
-    title: [''],
-    year: [new Date().getFullYear()],
+    title: ['', [Validators.required, Validators.minLength(2)]],
+    year: [new Date().getFullYear(), 
+      [Validators.required,
+      Validators.min(1880),
+      Validators.max(new Date().getFullYear())]
+    ],
     director: [''],
     plot: [''],
     genres: [],
@@ -30,6 +36,11 @@ export class MovieEditComponent implements OnInit {
 
   movie!: Movie;
 
+  editar = false;
+
+  genresList: string[] = [];
+
+  /* FIN DE DECLARACIÓN DE VARIABLES*/ 
   ngOnInit() {
     this.loadMovie();
   }
@@ -62,6 +73,9 @@ export class MovieEditComponent implements OnInit {
   get votes(): any {
     return this.formMovie.get('imbd.votes');
   }
+  get newGenre(): any {
+    return this.myNewGenre.get('newGenre');
+  }
 
 
   private loadMovie() {
@@ -84,6 +98,21 @@ export class MovieEditComponent implements OnInit {
       this.formMovie.reset();
       this.editar = false;
     }
+
+    this.movieService.getGenres().subscribe(
+      {
+        next: value => {
+          console.log(value);
+          this.genresList = value.status;
+        },
+        error: err => {
+          console.error(err);
+        },
+        complete: () => {
+          console.log('Genres loaded');
+        }
+      }
+    )
   }
 
   protected readonly Date:DateConstructor = Date;
@@ -91,23 +120,48 @@ export class MovieEditComponent implements OnInit {
     newGenre: ['']
   });
 
-  editar = false;
+
 
   addMovie() {
-
-    //SI editamos ACTUALIZAMOS
-
-    //Si NO editamos AÑADIMOS
+    if (this.editar) {
+      //SI editamos ACTUALIZAMOS
+      this.movieService.updateMovie(this.formMovie.getRawValue()).subscribe({
+        next: value => {
+          console.log(value);
+          this.router.navigateByUrl('/movies/list');
+      },
+      error: err => {
+        console.log(err);
+      }
+    })
+    } else {
+      //Si NO editamos AÑADIMOS
+      this.movieService.addMovie(this.formMovie.getRawValue()).subscribe({
+        next: value => {
+          console.log(value);
+          this.router.navigateByUrl('/movies/list');
+      },
+      error: err => {
+        console.log(err);
+      }
+    })
+    }
 
   }
 
   addNewGenre() {
     let newGenres = this.genres.value;
-    newGenres.push(this.myNewGenre.get('newGenres')?.value);
-    this.formMovie.setControl(
-     'genres',
-      new FormControl(newGenres)
-    );
+
+    if (!this.editar) {
+      this.genresList.push(this.newGenre.value);
+    } else {
+      newGenres = this.genres.value;
+      newGenres.push(this.newGenre.value);
+      this.genresList.push(this.newGenre.value);
+      this.formMovie.setControl(
+        'genres', new FormControl(newGenres)    
+    )
+  }
     this.myNewGenre.reset();
   }
 }

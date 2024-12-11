@@ -8,7 +8,7 @@ import { ApiResponseMovie, ApiResponseMovies, Movie } from '../common/interface'
 })
 export class MovieService {
   private readonly http: HttpClient=inject(HttpClient);
-  private readonly urlBase = 'http://localhost:3000/api/v1/movies';
+  private readonly urlBase = 'http://localhost:3000/api/v1/movies/';
 
   constructor() { }
 
@@ -17,7 +17,7 @@ export class MovieService {
   }
 
   getMovie(id: string): Observable<ApiResponseMovie> {
-    return this.http.get<ApiResponseMovie> (this.urlBase + '/movie/' + id);
+    return this.http.get<ApiResponseMovie> (this.urlBase + 'movie/' + id);
   }
 
   //Nuevo en la segunda evaluacion: FUNCIONES DEL CRUD:
@@ -37,8 +37,16 @@ export class MovieService {
       this.urlBase + id);
   }
 
+  getGenres():Observable<ApiResponseGenres> {
+    return this.http.get<ApiResponseGenres>(this.urlBase + 'genres');
+  }
+
 }
 
 export interface ApiResponseStatus {
+  status: string;
+}
 
+export interface ApiResponseGenres {
+  status: string[];
 }
